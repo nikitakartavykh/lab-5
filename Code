@@ -1,0 +1,286 @@
+#include <iostream>
+#include <cmath>
+#include <stdexcept>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <utility>
+using namespace std;
+
+double inputSideOfSquare() {
+Step1:
+    cout << "Введіть сторону квадрата a: ";
+    double a;
+    cin >> a;
+
+    if (cin.fail()) { // перевірка на відсутність помилок при отриманні введеного від користувача числа
+        cout << "\n\"a\" повинно бути числом\n";
+        cin.clear();
+        cin.ignore();
+        goto Step1;
+    }
+
+    if (a <= 0) {
+        cout << "\n\"a\" має бути більше нуля\n";
+        cin.clear();
+        cin.ignore();
+        goto Step1;
+    }
+
+    return a;
+}
+
+double inputCoordinate(char nameOfAxis, int numberOfDot) {
+Step1:
+    cout << "Введіть " << numberOfDot << "координату " << nameOfAxis << ": ";
+    double coordinate;
+    cin >> coordinate;
+
+    if (cin.fail()) { // перевірка на відсутність помилок при отриманні введеного від користувача числа
+        cout << "\n\"" << nameOfAxis << "\" повинно бути числом\n";
+        cin.clear();
+        cin.ignore();
+        goto Step1;
+    }
+
+    return coordinate;
+}
+
+// Функція перевірки точки в коричневій області 
+bool isPointInBrownArea(double x, double y, double a) {
+    double r = a / 2.0; // Радіус кола 
+
+    // Перевірка для for all sectors
+    bool inFirstBrownSector = (x * x + y * y <= r * r && x <= 0 && y <= x); // перевірка на наявність точки в секторі кола коричневої області
+    bool inSecondBrownSector = (x * x + y * y >= r * r && x >= -r && y >= -r && y <= 0 && y >= x); // перевірка на наявність точки у маленькому шматочку коричневої області зліва внизу
+    bool inThirdBrownSector = (x * x + y * y >= r * r && x <= r && y <= r && y >= 0 && y <= x); // перевірка на наявність точки у маленькому шматочку коричневої області праворуч угорі
+    return inFirstBrownSector || inSecondBrownSector || inThirdBrownSector; // Повертає true, якщо точка буде в одному з коричневих секторів
+
+}
+
+int inputN(string textToConsole) {
+Step1:
+    cout << textToConsole;
+    int n;
+    cin >> n;
+
+    if (cin.fail()) { // перевірка на відсутність помилок при отриманні введеного від користувача числа
+        cout << "\n\"n\" повинно бути числом\n";
+        cin.clear();
+        cin.ignore();
+        goto Step1;
+    }
+
+    if (n <= 0) {
+        cout << "\n\"n\" має бути більше нуля\n";
+        cin.clear();
+        cin.ignore();
+        goto Step1;
+    }
+
+    return n;
+}
+
+int pointsInBrownAreaCheck() {
+    double a = inputSideOfSquare();
+    int n = inputN("Введіть кількість координат n: ");
+    vector<bool> resultsArray(n);
+
+    for (int i = 0; i < n; i++) { // виконання коду для n точок
+        double x, y;
+        x = inputCoordinate('x', i + 1); // запит у користувача x
+        y = inputCoordinate('y', i + 1); // запит у користувача y
+
+        resultsArray[i] = isPointInBrownArea(x, y, a); // перевірка приналежності нової точки до коричневої області
+    }
+
+    int countOfNumbersInBrownArea = count(resultsArray.begin(), resultsArray.end(), true); // підрахунок всіх true значень
+
+    return countOfNumbersInBrownArea;
+}
+
+void pointsInBrownArea() {
+    int countOfNumbersInBrownArea = pointsInBrownAreaCheck();
+
+    cout << "Кількість точок в коричневій зоні: " << countOfNumbersInBrownArea;
+}
+
+
+// Variant 2: Обчислення виразу
+double calculateProductOfFunction(double x, int n) {
+    double numerator = 1.0;
+    double denominator = 1.0;
+
+    for (int i = 1; i <= n; i++) {
+        numerator *= (x - pow(2, i)); // добуток наступного значення чисельника на всі попередні
+        denominator *= (x - (pow(2, i) - 1)); // добуток наступного значення знаменника на всі попередні
+        if ((i + 1) % 4 == 0) { // виведення в консоль кожного четвертого елемента
+            if (denominator != 0) {
+                cout << "Елемент номер"<< i + 1 << ": " << numerator / denominator << "\n";
+            }
+            else { // у випадку, якщо знаменник дорівнює нулю - викидається помилка, що обриває цикл
+                throw invalid_argument("Знаменник дорівнює 0, обчислення неможливе.");
+            }
+        }
+    }
+
+    if (denominator != 0) { // повернення значення виразу, якщо знаменник не дорівнює нулю
+        return numerator / denominator;
+    } else { // у випадку, якщо знаменник дорівнює нулю - викидається помилка, що обриває цикл
+        throw invalid_argument("Знаменник дорівнює 0, обчислення неможливе.");
+    }
+}
+
+double inputX() {
+Step1:
+    cout << "Введіть значення x: ";
+    double x;
+    cin >> x;
+
+    if (cin.fail()) { // перевірка на відсутність помилок при отриманні введеного від користувача числа
+        cout << "\n\"x\" повинно бути числом\n";
+        cin.clear();
+        cin.ignore();
+        goto Step1;
+    }
+
+    return x;
+}
+
+void productOfFunction() {
+    double x = inputX();
+    int n = inputN("Введіть значення n (ціле число): ");
+
+    try { // виклик функції з уловлювання можливої ​​помилки
+        double result = calculateProductOfFunction(x, n);
+        cout << "Результат обчислення: " << result << "\n";
+    } catch (const exception &e) {
+        cout << "Помилка: " << e.what() << "\n";
+    }
+}
+
+// Variant 12: Обчислення часткової суми ряду
+unsigned long long factorial(int n) {
+    unsigned long long result = 1;
+    for (int i = 1; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+
+double functionInSeries(int n) {
+    const double E = exp(1.0);
+    double result = (factorial(n) * pow(E, n)) / pow(n, pow(n, 0.5));
+
+    return result;
+}
+
+pair<bool, double> isSeriesConvergent(double e, double g) {
+    double sum = 0.0;
+    double difference, previusResult, currentResult;
+    previusResult = 0;
+
+    int n = 1;
+    do {
+        currentResult = functionInSeries(n);
+        difference = currentResult - previusResult;
+        previusResult = currentResult;
+        sum += currentResult;
+    } while (difference >= g || difference <= e);
+
+    if (difference <= e) return {true, sum};
+    return {false, sum};
+}
+
+void seriesConvergencePrintToConsole(bool result, double sum) {
+    if (result) cout << "\nРяд збіжний\n";
+    else cout << "\nРяд незбіжний\n";
+
+    cout << "Сумма чисел ряду: " << sum << "\n";
+}
+
+void seriesConvergence() {
+    double e, eFromUser;
+    int g, gFromUser;
+
+    e = pow(10, -5);
+    g = pow(10, 2);
+    step1:
+
+    cout << "введіть число, яке буде нижньою умовою закінчення циклу: ";
+    cin >> eFromUser;
+
+    if (cin.fail()) { // перевірка на відсутність помилок при отриманні введеного від користувача числа
+        cout << "\nумова закінчення циклу повинна бути числом\n";
+        cin.clear();
+        cin.ignore();
+        goto step1;
+    }
+
+    if (!(abs(eFromUser) < e)) {
+        cout << "\nмодуль умови закінчення циклу має бути менше 10^-5\n";
+        cin.clear();
+        cin.ignore();
+        goto step1;
+    }
+
+    step2:
+
+    cout << "введіть число, яке буде верхньою умовою закінчення циклу: ";
+    cin >> gFromUser;
+
+    if (cin.fail()) { // перевірка на відсутність помилок при отриманні введеного від користувача числа
+        cout << "\nумова закінчення циклу повинна бути числом\n";
+        cin.clear();
+        cin.ignore();
+        goto step2;
+    }
+
+    if (!(abs(gFromUser) > g)) {
+        cout << "\nмодуль умови закінчення циклу має бути більше 10^2\n";
+        cin.clear();
+        cin.ignore();
+        goto step2;
+    }
+
+    auto [result, sum] = isSeriesConvergent(eFromUser, gFromUser);
+
+    seriesConvergencePrintToConsole(result, sum);
+}
+
+// Головна функція
+int main() {
+    Step1:
+    int choice;
+
+    cout << "\nОберіть задачу для виконання:\n";
+    cout << "1. Розрахунок параметрів коричневої області\n";
+    cout << "2. Обчислення виразу\n";
+    cout << "3. Обчислення часткової суми ряду\n";
+    cout << "0. Вийти\n";
+    cout << "Ваш вибір: ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1:
+            pointsInBrownArea();
+            goto Step1;
+            break;
+        case 2:
+            productOfFunction();
+            goto Step1;
+            break;
+        case 3:
+            seriesConvergence();
+            goto Step1;
+            break;
+        case 0:
+            cout << "Вихід з програми.\n";
+            break;
+        default:
+            cout << "Некоректний вибір. Спробуйте ще раз.\n";
+            goto Step1;
+    }
+
+    return 0;
+}
